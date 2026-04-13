@@ -1,0 +1,17 @@
+# 仮想環境
+venv*/
+
+# テスト / カバレッジ 生成ファイル
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+*.coverage
+
+# Python キャッシュ
+__pycache__/
+*.py[cod]
+
+# PyInstaller ビルド成果物
+build/
+dist/
