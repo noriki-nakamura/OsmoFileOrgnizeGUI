@@ -14,6 +14,12 @@ from organizer_core import (
 
 
 # ──────────────────────────────────────────────
+# 定数・設定
+# ──────────────────────────────────────────────
+APP_VERSION = "v0.0.0-dev"
+
+
+# ──────────────────────────────────────────────
 # メインアプリケーション
 # ──────────────────────────────────────────────
 
@@ -84,6 +90,11 @@ class OsmoOrganizerApp:
         title = ttk.Label(self.root, text="OSMO Pocket データ整理ツール",
                           font=("Yu Gothic UI", 16, "bold"))
         title.pack(anchor="w", padx=16, pady=(12, 4))
+
+        # バージョン表示 (右上に配置)
+        version_lbl = ttk.Label(self.root, text=APP_VERSION, 
+                                font=("Yu Gothic UI", 9), foreground="gray")
+        version_lbl.place(relx=1.0, rely=0.0, anchor="ne", x=-16, y=14)
 
         # 1. フォルダ選択
         self._build_folder_section()
