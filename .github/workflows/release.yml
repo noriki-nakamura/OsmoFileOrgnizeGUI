@@ -28,6 +28,11 @@ jobs:
           pip install -r requirements.txt
           pip install pyinstaller
 
+      - name: Inject version info
+        shell: bash
+        run: |
+          sed -i "s/APP_VERSION = \"v0.0.0-dev\"/APP_VERSION = \"${{ github.ref_name }}\"/" main.py
+
       - name: Build exe with PyInstaller
         run: |
           pyinstaller OsmoFileOrganize.spec
