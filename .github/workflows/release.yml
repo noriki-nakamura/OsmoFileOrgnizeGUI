@@ -38,7 +38,7 @@ jobs:
           pyinstaller OsmoFileOrganize.spec
 
       - name: Create GitHub Release and upload exe
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: dist/OsmoFileOrganize.exe
           generate_release_notes: true
