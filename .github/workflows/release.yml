@@ -52,6 +52,14 @@ jobs:
         run: |
           iscc /dMyAppVersion="${{ steps.version.outputs.ver }}" installer.iss
 
+      - name: Upload artifacts for verification
+        uses: actions/upload-artifact@v4
+        with:
+          name: OsmoFileOrganize-Build-${{ github.ref_name }}
+          path: |
+            dist/OsmoFileOrganize.exe
+            dist/OsmoFileOrganize-Setup.exe
+
       - name: Create GitHub Release and upload files
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v3
