@@ -112,7 +112,6 @@ def build_dest_path(
     video_folder: str,
     photo_folder: str,
     misc_folder: str,
-    group_ext: bool,
     folder_order: str,
 ) -> Path:
     """ファイル情報と整理設定から整理先の相対パスを生成する。
@@ -127,7 +126,6 @@ def build_dest_path(
         video_folder: 動画フォルダ名
         photo_folder: 写真フォルダ名
         misc_folder:  その他フォルダ名
-        group_ext:    拡張子ごとにフォルダ分けするか
         folder_order: 階層順序文字列（例: "日付 > 種類 > 拡張子"）
 
     Returns:
@@ -153,7 +151,7 @@ def build_dest_path(
         )
 
     # 拡張子セグメントの生成
-    ext_seg = file_path.suffix[1:].upper() if group_ext else None
+    ext_seg = file_path.suffix[1:].upper()
 
     # 階層順序に従ってセグメントを結合
     order_parts = [p.strip() for p in folder_order.split(">")]

@@ -50,7 +50,6 @@ class OsmoOrganizerApp:
         self.var_photo_folder = tk.StringVar(value="Photos")
         self.var_ignore_exts = tk.StringVar(value=".LRF, .THM")
         self.var_folder_order = tk.StringVar(value="日付 > 種類")
-        self.var_group_ext = tk.BooleanVar(value=False)
         self.var_video_exts = tk.StringVar(value=".MP4")
         self.var_photo_exts = tk.StringVar(value=".JPG, .DNG, .JPEG")
         self.var_misc_folder = tk.StringVar(value="Misc")
@@ -216,8 +215,8 @@ class OsmoOrganizerApp:
         self.ent_ignore_exts = ttk.Entry(ignore_row, textvariable=self.var_ignore_exts, width=12)
         self.ent_ignore_exts.pack(side="left", fill="x", expand=True, padx=(4, 0))
 
-        # --- 日付ごとの整理 ---
-        f_date = ttk.LabelFrame(cols, text="日付ごとの整理", padding=8)
+        # --- 整理設定 ---
+        f_date = ttk.LabelFrame(cols, text="整理設定", padding=8)
         f_date.grid(row=0, column=1, sticky="nsew", padx=4)
         ttk.Checkbutton(f_date, text="日付ごとにフォルダ分け",
                          variable=self.var_group_date,
@@ -233,6 +232,26 @@ class OsmoOrganizerApp:
         )
         self.combo_date_format.pack(side="left", padx=(4, 0))
         self.combo_date_format.bind("<<ComboboxSelected>>", lambda e: self._update_previews())
+
+        # 階層順序
+        order_row = ttk.Frame(f_date)
+        order_row.pack(fill="x", pady=(10, 0))
+        ttk.Label(order_row, text="階層順序").pack(side="left")
+        self.combo_folder_order = ttk.Combobox(
+            order_row, textvariable=self.var_folder_order,
+            values=(
+                "日付 > 種類", 
+                "種類 > 日付", 
+                "日付 > 種類 > 拡張子", 
+                "種類 > 日付 > 拡張子",
+                "日付 > 拡張子",
+                "種類 > 拡張子",
+                "拡張子 > 日付 > 種類"
+            ),
+            state="readonly", width=25
+        )
+        self.combo_folder_order.pack(side="left", padx=(4, 0))
+        self.combo_folder_order.bind("<<ComboboxSelected>>", lambda e: self._update_previews())
 
         # --- 動画/写真の整理 ---
         f_type = ttk.LabelFrame(cols, text="動画/写真の整理", padding=8)
@@ -271,37 +290,8 @@ class OsmoOrganizerApp:
         self.ent_photo_exts = ttk.Entry(p_ext_row, textvariable=self.var_photo_exts)
         self.ent_photo_exts.pack(side="left", fill="x", expand=True)
 
-        # --- 拡張子ごとの整理 ---
-        f_ext = ttk.LabelFrame(cols, text="拡張子ごとの整理", padding=8)
-        f_ext.grid(row=0, column=3, sticky="nsew", padx=4)
-        ttk.Checkbutton(f_ext, text="拡張子ごとにフォルダ分け",
-                         variable=self.var_group_ext,
-                         command=self._update_previews).pack(anchor="w", pady=2)
-        ttk.Label(f_ext, text="(例: /JPG, /MP4)", font=("Yu Gothic UI", 8, "italic"),
-                  foreground="gray").pack(anchor="w", padx=20)
-
-        # 列構成の重みを更新 (4列分)
-        cols.columnconfigure(3, weight=1)
-
-        # 階層順序
-        order_row = ttk.Frame(settings_group)
-        order_row.pack(fill="x", pady=(10, 0))
-        ttk.Label(order_row, text="階層順序").pack(side="left")
-        self.combo_folder_order = ttk.Combobox(
-            order_row, textvariable=self.var_folder_order,
-            values=(
-                "日付 > 種類", 
-                "種類 > 日付", 
-                "日付 > 種類 > 拡張子", 
-                "種類 > 日付 > 拡張子",
-                "日付 > 拡張子",
-                "種類 > 拡張子",
-                "拡張子 > 日付 > 種類"
-            ),
-            state="readonly", width=25
-        )
-        self.combo_folder_order.pack(side="left", padx=(4, 0))
-        self.combo_folder_order.bind("<<ComboboxSelected>>", lambda e: self._update_previews())
+        # 列構成の重みを更新 (3列分)
+        cols.columnconfigure(2, weight=1)
 
         # 変数の状態に合わせて有効/無効を切り替えるためのヘルパーを呼ぶ
         self.var_split_type.trace_add("write", lambda *args: self._update_entry_state())
@@ -402,7 +392,6 @@ class OsmoOrganizerApp:
                 video_folder=self.var_video_folder.get(),
                 photo_folder=self.var_photo_folder.get(),
                 misc_folder=self.var_misc_folder.get(),
-                group_ext=self.var_group_ext.get(),
                 folder_order=self.var_folder_order.get(),
             )
 
