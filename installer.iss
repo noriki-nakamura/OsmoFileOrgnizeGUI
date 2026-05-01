@@ -21,8 +21,8 @@ Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
 PrivilegesRequired=lowest
-DisableDirPage=yes
-DisableProgramGroupPage=yes
+DisableDirPage=no
+DisableProgramGroupPage=no
 
 [Languages]
 Name: "japanese"; MessagesFile: "compiler:Languages\Japanese.isl"
