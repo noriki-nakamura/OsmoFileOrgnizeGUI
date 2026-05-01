@@ -58,7 +58,7 @@ jobs:
         run: echo "sha7=$(echo ${GITHUB_SHA} | cut -c1-7)" >> $GITHUB_OUTPUT
 
       - name: Upload artifacts for verification
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: OsmoFileOrganize-Build-${{ steps.slug.outputs.sha7 }}
           path: |
