@@ -55,7 +55,7 @@ jobs:
       - name: Upload artifacts for verification
         uses: actions/upload-artifact@v4
         with:
-          name: OsmoFileOrganize-Build-${{ github.ref_name }}
+          name: OsmoFileOrganize-Build
           path: |
             dist/OsmoFileOrganize.exe
             dist/OsmoFileOrganize-Setup.exe
