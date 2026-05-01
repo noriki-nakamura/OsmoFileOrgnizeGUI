@@ -15,3 +15,6 @@ __pycache__/
 # PyInstaller ビルド成果物
 build/
 dist/
+
+# 設定ファイル
+config.json
