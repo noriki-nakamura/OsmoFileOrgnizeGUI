@@ -37,8 +37,14 @@ jobs:
         run: |
           pyinstaller OsmoFileOrganize.spec
 
-      - name: Create GitHub Release and upload exe
+      - name: Build Installer with Inno Setup
+        run: |
+          iscc /dMyAppVersion="${{ github.ref_name }}" installer.iss
+
+      - name: Create GitHub Release and upload files
         uses: softprops/action-gh-release@v3
         with:
-          files: dist/OsmoFileOrganize.exe
+          files: |
+            dist/OsmoFileOrganize.exe
+            dist/OsmoFileOrganize-Setup.exe
           generate_release_notes: true
