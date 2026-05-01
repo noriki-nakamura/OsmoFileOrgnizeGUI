@@ -11,8 +11,13 @@ REM ============================================================
 echo [OSMO Build] ビルドを開始します...
 echo.
 
-REM 仮想環境の Activate
-call venv-OsmoFileOrg\Scripts\activate.bat
+REM ビルドに必要な環境の準備 (uv sync)
+echo [OSMO Build] 依存関係を同期しています...
+uv sync
+if %ERRORLEVEL% neq 0 (
+    echo [OSMO Build] uv sync に失敗しました。
+    exit /b %ERRORLEVEL%
+)
 
 REM 古いビルド成果物を削除
 if exist dist\OsmoFileOrganize.exe (
@@ -22,7 +27,7 @@ if exist dist\OsmoFileOrganize.exe (
 
 REM PyInstaller でビルド
 echo [OSMO Build] PyInstaller を実行しています...
-pyinstaller OsmoFileOrganize.spec --noconfirm
+uv run pyinstaller OsmoFileOrganize.spec --noconfirm
 
 echo.
 if %ERRORLEVEL% == 0 (
