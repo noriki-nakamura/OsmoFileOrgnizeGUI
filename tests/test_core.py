@@ -229,7 +229,6 @@ class TestBuildDestPath:
             video_folder="Videos",
             photo_folder="Photos",
             misc_folder="Misc",
-            group_ext=False,
             folder_order="日付 > 種類",
         )
         defaults.update(kwargs)
@@ -308,10 +307,9 @@ class TestBuildDestPath:
     # ── 拡張子ごとの整理 ─────────────────────
 
     def test_group_by_ext(self, video_file):
-        """拡張子グループON → 拡張子フォルダが追加される"""
+        """階層順序に拡張子が含まれる → 拡張子フォルダが追加される"""
         result = self._build(
             video_file,
-            group_ext=True,
             folder_order="日付 > 種類 > 拡張子"
         )
         parts = result.parts
@@ -322,7 +320,6 @@ class TestBuildDestPath:
         result = self._build(
             photo_file,
             file_type="写真",
-            group_ext=True,
             folder_order="日付 > 種類 > 拡張子"
         )
         parts = result.parts
