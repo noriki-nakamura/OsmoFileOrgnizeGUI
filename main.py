@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 import os
+import json
 import shutil
 import threading
 from pathlib import Path
@@ -82,6 +83,12 @@ class OsmoOrganizerApp:
         init_h = max(req_h, 720) 
         self.root.minsize(req_w, req_h)
         self.root.geometry(f"{req_w}x{init_h}")
+
+        # 設定の読み込み
+        self._load_config()
+
+        # 終了時の保存設定
+        self.root.protocol("WM_DELETE_WINDOW", self._on_closing)
 
     # ─── UI 構築 ──────────────────────────────
     def _build_ui(self):
@@ -334,6 +341,7 @@ class OsmoOrganizerApp:
             self.source_path = path
             self.lbl_source.config(text=path, font=("Yu Gothic UI", 9))
             self._update_previews()
+            self._save_config()
 
     def _pick_dest(self):
         path = filedialog.askdirectory(title="保存先 (ハードディスク等) を選択")
@@ -341,6 +349,7 @@ class OsmoOrganizerApp:
             self.dest_path = path
             self.lbl_dest.config(text=path, font=("Yu Gothic UI", 9))
             self._update_start_button()
+            self._save_config()
 
     # ─── プレビュー更新 ───────────────────────
     def _update_previews(self):
@@ -459,6 +468,7 @@ class OsmoOrganizerApp:
         self.btn_start.config(state="disabled")
         self.progressbar["value"] = 0
         self.lbl_progress.config(text="準備中...")
+        self._save_config()
         threading.Thread(target=self._execute_copy, daemon=True).start()
 
     def _execute_copy(self):
@@ -503,6 +513,86 @@ class OsmoOrganizerApp:
                 os.startfile(self.dest_path)
             except Exception:
                 pass
+
+    # ─── 設定の保存・読み込み ─────────────────
+    def _get_config_path(self) -> Path:
+        """設定ファイルのパスを返す"""
+        return Path(__file__).parent / "config.json"
+
+    def _load_config(self):
+        """設定を読み込む"""
+        path = self._get_config_path()
+        if not path.exists():
+            return
+
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                conf = json.load(f)
+
+            # パス
+            self.source_path = conf.get("source_path", "")
+            if self.source_path:
+                self.lbl_source.config(text=self.source_path, font=("Yu Gothic UI", 9))
+            
+            self.dest_path = conf.get("dest_path", "")
+            if self.dest_path:
+                self.lbl_dest.config(text=self.dest_path, font=("Yu Gothic UI", 9))
+
+            # チェックボックス・変数
+            # BooleanVar
+            self.var_delete.set(conf.get("delete", False))
+            self.var_ignore_proxy.set(conf.get("ignore_proxy", True))
+            self.var_group_date.set(conf.get("group_date", True))
+            self.var_split_type.set(conf.get("split_type", True))
+            self.var_open_dest.set(conf.get("open_dest", True))
+            
+            # StringVar
+            self.var_date_format.set(conf.get("date_format", "YYYYMMDD"))
+            self.var_video_folder.set(conf.get("video_folder", "Videos"))
+            self.var_photo_folder.set(conf.get("photo_folder", "Photos"))
+            self.var_ignore_exts.set(conf.get("ignore_exts", ".LRF, .THM"))
+            self.var_folder_order.set(conf.get("folder_order", "日付 > 種類"))
+            self.var_video_exts.set(conf.get("video_exts", ".MP4"))
+            self.var_photo_exts.set(conf.get("photo_exts", ".JPG, .DNG, .JPEG"))
+            self.var_misc_folder.set(conf.get("misc_folder", "Misc"))
+
+            # UI状態の更新
+            self._update_entry_state()
+            self._update_previews()
+
+        except Exception as e:
+            print(f"Failed to load config: {e}")
+
+    def _save_config(self):
+        """現在の設定を保存する"""
+        conf = {
+            "source_path": self.source_path,
+            "dest_path": self.dest_path,
+            "delete": self.var_delete.get(),
+            "ignore_proxy": self.var_ignore_proxy.get(),
+            "group_date": self.var_group_date.get(),
+            "split_type": self.var_split_type.get(),
+            "open_dest": self.var_open_dest.get(),
+            "date_format": self.var_date_format.get(),
+            "video_folder": self.var_video_folder.get(),
+            "photo_folder": self.var_photo_folder.get(),
+            "ignore_exts": self.var_ignore_exts.get(),
+            "folder_order": self.var_folder_order.get(),
+            "video_exts": self.var_video_exts.get(),
+            "photo_exts": self.var_photo_exts.get(),
+            "misc_folder": self.var_misc_folder.get(),
+        }
+
+        try:
+            with open(self._get_config_path(), "w", encoding="utf-8") as f:
+                json.dump(conf, f, indent=4, ensure_ascii=False)
+        except Exception as e:
+            print(f"Failed to save config: {e}")
+
+    def _on_closing(self):
+        """ウィンドウを閉じる前の処理"""
+        self._save_config()
+        self.root.destroy()
 
 
 # ──────────────────────────────────────────────
