@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - 'v*'
+  pull_request:
 
 jobs:
   build-and-release:
@@ -28,17 +29,46 @@ jobs:
           pip install -r requirements.txt
           pip install pyinstaller
 
+      - name: Set version string
+        id: version
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            echo "ver=PR #${{ github.event.number }} (Review)" >> $GITHUB_OUTPUT
+          else
+            echo "ver=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          fi
+
       - name: Inject version info
         shell: bash
         run: |
-          sed -i "s/APP_VERSION = \"v0.0.0-dev\"/APP_VERSION = \"${{ github.ref_name }}\"/" main.py
+          sed -i "s/APP_VERSION = \"v0.0.0-dev\"/APP_VERSION = \"${{ steps.version.outputs.ver }}\"/" main.py
 
       - name: Build exe with PyInstaller
         run: |
           pyinstaller OsmoFileOrganize.spec
 
-      - name: Create GitHub Release and upload exe
+      - name: Build Installer with Inno Setup
+        run: |
+          iscc /dMyAppVersion="${{ steps.version.outputs.ver }}" installer.iss
+
+      - name: Get short SHA
+        id: slug
+        shell: bash
+        run: echo "sha7=$(echo ${GITHUB_SHA} | cut -c1-7)" >> $GITHUB_OUTPUT
+
+      - name: Upload artifacts for verification
+        uses: actions/upload-artifact@v7
+        with:
+          name: OsmoFileOrganize-Build-${{ steps.slug.outputs.sha7 }}
+          path: |
+            dist/OsmoFileOrganize.exe
+            dist/OsmoFileOrganize-Setup.exe
+
+      - name: Create GitHub Release and upload files
+        if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v3
         with:
-          files: dist/OsmoFileOrganize.exe
+          files: |
+            dist/OsmoFileOrganize-Setup.exe
           generate_release_notes: true
